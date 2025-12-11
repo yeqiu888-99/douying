@@ -1,0 +1,6 @@
+{
+  "pages": ["pages/index/index", "pages/success/success"],
+  "window": {
+    "navigationBarTitleText": "咨询何律师"
+  }
+}

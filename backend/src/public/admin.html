@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>咨询订单后台</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    input, select, textarea { padding: 6px; margin: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h2>咨询订单后台</h2>
+  <div id="login-block">
+    <h4>登录</h4>
+    <input id="username" placeholder="用户名" />
+    <input id="password" type="password" placeholder="密码" />
+    <button onclick="login()">登录</button>
+    <p id="login-error" style="color:red"></p>
+  </div>
+
+  <div id="app" class="hidden">
+    <div>
+      <label>状态筛选：</label>
+      <select id="status-filter" onchange="loadOrders()">
+        <option value="">全部</option>
+        <option value="pending_answer">待回答</option>
+        <option value="answered">已回答</option>
+        <option value="refunded">已退款</option>
+        <option value="refund_failed">退款失败</option>
+      </select>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>订单号</th>
+          <th>网名</th>
+          <th>状态</th>
+          <th>提交时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="orders-body"></tbody>
+    </table>
+    <div id="detail"></div>
+  </div>
+
+  <script>
+    async function login() {
+      const res = await fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: document.getElementById('username').value, password: document.getElementById('password').value })
+      });
+      if (res.ok) {
+        document.getElementById('login-block').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        loadOrders();
+      } else {
+        document.getElementById('login-error').innerText = '登录失败';
+      }
+    }
+
+    async function loadOrders() {
+      const status = document.getElementById('status-filter').value;
+      const res = await fetch('/admin/orders' + (status ? `?status=${status}` : ''));
+      if (!res.ok) return alert('加载失败');
+      const data = await res.json();
+      const body = document.getElementById('orders-body');
+      body.innerHTML = '';
+      data.forEach(o => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${o.order_no}</td><td>${o.nickname}</td><td>${o.status}</td><td>${new Date(o.created_at).toLocaleString()}</td><td><button onclick="showDetail(${o.id})">详情</button></td>`;
+        body.appendChild(tr);
+      });
+    }
+
+    async function showDetail(id) {
+      const res = await fetch(`/admin/orders/${id}`);
+      if (!res.ok) return alert('获取详情失败');
+      const d = await res.json();
+      document.getElementById('detail').innerHTML = `
+        <h4>订单详情</h4>
+        <p>订单号：${d.order_no}</p>
+        <p>网名：${d.nickname}</p>
+        <p>联系方式：${d.contact}</p>
+        <p>问题：${d.question}</p>
+        <p>状态：${d.status}</p>
+        <p>支付时间：${d.paid_at ? new Date(d.paid_at).toLocaleString() : ''}</p>
+        <div ${d.status === 'answered' ? 'class="hidden"' : ''}>
+          <textarea id="answer-summary" placeholder="回答摘要"></textarea>
+          <button onclick="markAnswered(${id})">标记已回答</button>
+        </div>
+      `;
+    }
+
+    async function markAnswered(id) {
+      const summary = document.getElementById('answer-summary').value;
+      const res = await fetch(`/admin/orders/${id}/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answer_summary: summary })
+      });
+      if (res.ok) {
+        alert('已更新');
+        loadOrders();
+      } else {
+        alert('更新失败');
+      }
+    }
+  </script>
+</body>
+</html>

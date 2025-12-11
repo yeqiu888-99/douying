@@ -1,0 +1,10 @@
+<view class="container">
+  <text class="title">订单已创建</text>
+  <text class="desc">请在约定时间内留意平台通知或律师联系。</text>
+  <view class="card">
+    <text>订单号：{{orderNo}}</text>
+    <text>提交时间：{{createdAt}}</text>
+    <text>最晚答复时间：{{latestReply}}</text>
+  </view>
+  <button bindtap="goHome">返回</button>
+</view>

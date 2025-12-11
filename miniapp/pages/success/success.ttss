@@ -1,0 +1,4 @@
+.container { padding: 24rpx; text-align: center; }
+.title { font-size: 36rpx; font-weight: bold; }
+.desc { color: #555; margin: 12rpx 0; display: block; }
+.card { background: #f7f7f7; padding: 16rpx; border-radius: 12rpx; text-align: left; margin: 16rpx 0; display: flex; flex-direction: column; gap: 8rpx; }
