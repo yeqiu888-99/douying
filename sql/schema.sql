@@ -1,0 +1,28 @@
+CREATE TABLE IF NOT EXISTS consultation_orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_no VARCHAR(64) NOT NULL UNIQUE,
+  douyin_openid VARCHAR(128) NOT NULL,
+  nickname VARCHAR(64) NOT NULL,
+  contact VARCHAR(128) NOT NULL,
+  question TEXT NOT NULL,
+  reply_limit_minutes INT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL DEFAULT 200.00,
+  status VARCHAR(32) NOT NULL,
+  payment_no VARCHAR(128),
+  refund_no VARCHAR(128),
+  created_at DATETIME NOT NULL,
+  paid_at DATETIME,
+  expire_at DATETIME,
+  answered_at DATETIME,
+  refunded_at DATETIME,
+  answer_summary VARCHAR(255),
+  refund_reason VARCHAR(255)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS app_config (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  phone_number VARCHAR(32) NOT NULL,
+  service_terms TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
