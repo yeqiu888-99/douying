@@ -1,37 +1,74 @@
-<view class="container">
-  <view class="header">
-    <text class="title">咨询何律师</text>
-    <text class="subtitle">通过本小程序预付200元咨询费，由何律师在约定时间内给出一对一专业回复。</text>
+<view class="page">
+  <view class="promise-card">
+    <text class="promise-title">超时未回复，系统自动全额退款</text>
+    <text class="promise-subtitle">专业律师在线答复，透明定价、极速响应</text>
   </view>
 
-  <view class="contact">
-    <text class="label">何律师手机号</text>
-    <text class="phone">{{phoneNumber}}</text>
-    <text class="note">付款前请确认号码无误，如需语音或电话沟通，请确保联系方式可用。</text>
-  </view>
-
-  <view class="form-block">
-    <input class="input" placeholder="请输入您的网名或称呼" value="{{form.nickname}}" bindinput="onInput" data-field="nickname" />
-    <input class="input" placeholder="请输入手机号/微信号/抖音号等" value="{{form.contact}}" bindinput="onInput" data-field="contact" />
-    <textarea class="textarea" placeholder="请尽可能详细描述您的法律问题和关键信息" value="{{form.question}}" bindinput="onInput" data-field="question" maxlength="500" />
-    <picker mode="selector" range="{{replyOptions}}" bindchange="onReplyChange">
-      <view class="picker">
-        期望答复时间：{{replyOptions[selectedReplyIndex]}}
-      </view>
-    </picker>
-  </view>
-
-  <view class="price-block">
-    <text class="price">咨询费：200元/次</text>
-    <view class="rules">
-      <text>a. 用户支付200元后生成咨询订单，由何律师在您选择的时间内进行解答。</text>
-      <text>b. 如在约定时间内未能完成回复，系统将自动为您办理退款。</text>
-      <text>c. 咨询不构成正式代理关系，具体以中国法律和平台规则为准。</text>
+  <view class="section">
+    <text class="section-title">紧急程度</text>
+    <view class="urgency-row">
+      <block wx:for="{{urgencyOptions}}" wx:key="label">
+        <view
+          class="urgency-pill {{selectedUrgencyIndex === index ? 'urgency-pill--active' : ''}}"
+          bindtap="onUrgencySelect"
+          data-index="{{index}}"
+        >
+          <text>{{item.label}}</text>
+        </view>
+      </block>
     </view>
+    <view class="price-highlight">
+      <text class="price-label">当前价格</text>
+      <text class="price-value">¥{{urgencyOptions[selectedUrgencyIndex].price}}</text>
+      <text class="price-tip">{{urgencyOptions[selectedUrgencyIndex].hours}}小时内答复</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">咨询填写</text>
+    <input
+      class="input"
+      placeholder="请输入您的网名或称呼"
+      value="{{form.nickname}}"
+      bindinput="onInput"
+      data-field="nickname"
+    />
+    <input
+      class="input"
+      placeholder="请输入手机号/微信号"
+      value="{{form.contact}}"
+      bindinput="onInput"
+      data-field="contact"
+    />
+    <textarea
+      class="textarea"
+      placeholder="请详细描述案情与证据，不限字数..."
+      value="{{form.question}}"
+      bindinput="onInput"
+      data-field="question"
+      auto-height="true"
+    />
+  </view>
+
+  <view class="section section--muted">
+    <text class="section-title">服务说明</text>
+    <text class="desc">付款后生成咨询订单，律师在约定时间内一对一回复。</text>
+    <text class="desc">若超时未回复，系统将自动全额退款。</text>
+    <text class="desc">咨询不构成正式代理关系，具体以平台规则为准。</text>
     <text class="link" bindtap="toggleTerms">查看服务说明/免责声明</text>
   </view>
 
-  <button class="pay-btn" bindtap="submit" loading="{{submitting}}">确认并支付200元</button>
+  <view class="footer-spacer"></view>
+
+  <view class="bottom-bar">
+    <view class="bottom-info">
+      <text class="bottom-price">¥{{urgencyOptions[selectedUrgencyIndex].price}}</text>
+      <text class="bottom-tip">{{urgencyOptions[selectedUrgencyIndex].hours}}小时内答复</text>
+    </view>
+    <button class="pay-btn" bindtap="submit" loading="{{submitting}}">
+      支付 ¥{{urgencyOptions[selectedUrgencyIndex].price}} · 提交咨询
+    </button>
+  </view>
 
   <view wx:if="{{showTerms}}" class="modal">
     <view class="modal-content">
