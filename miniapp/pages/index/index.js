@@ -1,16 +1,19 @@
-const replyOptions = [
-  { label: '2小时内', minutes: 120 },
-  { label: '4小时内', minutes: 240 },
-  { label: '8小时内', minutes: 480 },
-  { label: '24小时内', minutes: 1440 },
+const urgencyOptions = [
+  { label: '48h', hours: 48, price: 100 },
+  { label: '24h', hours: 24, price: 150 },
+  { label: '12h', hours: 12, price: 200 },
+  { label: '10h', hours: 10, price: 300 },
+  { label: '8h', hours: 8, price: 400 },
+  { label: '5h', hours: 5, price: 600 },
+  { label: '3h', hours: 3, price: 800 },
 ];
 
 Page({
   data: {
     phoneNumber: '',
     serviceTerms: '',
-    replyOptions: replyOptions.map(o => o.label),
-    selectedReplyIndex: 0,
+    urgencyOptions,
+    selectedUrgencyIndex: 0,
     form: { nickname: '', contact: '', question: '' },
     submitting: false,
     showTerms: false,
@@ -40,8 +43,9 @@ Page({
     this.setData({ [`form.${field}`]: e.detail.value });
   },
 
-  onReplyChange(e) {
-    this.setData({ selectedReplyIndex: Number(e.detail.value) });
+  onUrgencySelect(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    this.setData({ selectedUrgencyIndex: index });
   },
 
   validateForm() {
@@ -60,31 +64,32 @@ Page({
     }
     this.setData({ submitting: true });
     const app = getApp();
-    const limit = replyOptions[this.data.selectedReplyIndex].minutes;
+    const selected = urgencyOptions[this.data.selectedUrgencyIndex];
     try {
       const res = await tt.request({
         url: `${app.globalData.apiBase}/orders/create`,
         method: 'POST',
         data: {
           ...this.data.form,
-          reply_limit_minutes: limit,
-          douyin_openid: 'mock-openid'
-        }
+          reply_limit_minutes: selected.hours * 60,
+          douyin_openid: 'mock-openid',
+        },
       });
       if (res.statusCode === 200) {
         const payParams = res.data.payParams;
-        // Replace tt.pay here with real Douyin pay invocation.
         tt.showLoading({ title: '拉起支付...' });
         tt.requestPayment({
           ...payParams,
           success: () => {
             tt.hideLoading();
-            tt.navigateTo({ url: `/pages/success/success?orderNo=${res.data.orderNo}&expire=${limit}` });
+            tt.navigateTo({
+              url: `/pages/success/success?orderNo=${res.data.orderNo}&expire=${selected.hours}`,
+            });
           },
           fail: () => {
             tt.hideLoading();
             tt.showToast({ title: '支付未完成', icon: 'none' });
-          }
+          },
         });
       } else {
         tt.showToast({ title: '创建订单失败', icon: 'none' });
@@ -99,5 +104,5 @@ Page({
 
   toggleTerms() {
     this.setData({ showTerms: !this.data.showTerms });
-  }
+  },
 });
